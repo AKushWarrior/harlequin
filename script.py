@@ -24,11 +24,11 @@ memeReddits = [
 def fetchmeme():
     global used
     subreddit = reddit.subreddit(memeReddits[randint(0,len(memeReddits)-1)])
-    for submission in subreddit.top(limit=20):
+    for submission in subreddit.top('day', limit=30):
         if not (submission.stickied or submission in used):
             used.append(submission)
             return submission
-    for submission in reddit.subreddit("MemeEconomy").top(limit=30):
+    for submission in reddit.subreddit("MemeEconomy").top('day', limit=30):
         if not (submission.stickied or submission in used):
             used.append(submission)
             return submission
@@ -51,24 +51,18 @@ async def on_ready():
 async def boot(ctx):
     global working
     working = True
-    await ctx.send("Memes will send every 5 minutes...")
-    while working:
+    await ctx.send("Memes will send every minute...")
+    while True:
         memeurl = fetchmeme().url
         async with aiohttp.ClientSession() as session:
             async with session.get(memeurl) as resp:
                 if resp.status != 200:
-                    await ctx.message.channel.send('Could not download file...')
+                    await ctx.send('Could not download file...')
                 data = io.BytesIO(await resp.read())
-                await ctx.send(file=discord.File(data, 'meme.png'))
-        time.sleep(300)
+                try:
+                    await ctx.send(file=discord.File(data, 'meme.png'))
+                except discord.errors.HTTPException:
+                    await ctx.send("File too large to send...")
+        time.sleep(60)
 
-
-@client.command(pass_context=True)
-async def shut(ctx):
-    global working
-    working = False
-    await ctx.send("Memes will no longer send...")
-    return
-
-
-client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYRGUw.mCvEryFuK9rm1c5rwcat1QYlpNs')
+client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYVf8g.6k29MjCDVMKOonKFunCelucEGLU')
