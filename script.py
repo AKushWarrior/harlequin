@@ -41,7 +41,10 @@ client = commands.Bot(command_prefix='$')
 
 @client.event
 async def on_ready():
-    print('Harlequin is booted up and providing memes...')
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
 
 
 @client.command(pass_context=True)
@@ -67,5 +70,5 @@ async def shut(ctx):
     await ctx.send("Memes will no longer send...")
     return
 
-while True:
-    client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYQz0A.lyomi3gHRyrlnJIneclXjfaLvfA')
+
+client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYRGUw.mCvEryFuK9rm1c5rwcat1QYlpNs')
