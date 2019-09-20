@@ -1,14 +1,13 @@
 import praw
 import discord
+from discord.ext import commands
 import time
 from random import randint
 import io
 import aiohttp
 
-client = discord.Client()
 
-
-reddit = praw.Reddit(client_id= 'p1txnzMS8WzQMg',
+reddit = praw.Reddit(client_id='p1txnzMS8WzQMg',
                      client_secret='I4eujCIMd_qxTKEaTLlP15eVxPw',
                      user_agent='Harlequin for Discord v1.0.0')
 
@@ -20,43 +19,6 @@ memeReddits = [
     'meme',
     'dank_meme'
 ]
-
-used = []
-
-working = False
-
-@client.event
-async def on_ready():
-    print('Harlequin is booted up and providing memes...')
-
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$boot'):
-        global working
-        working = True
-        while working:
-            memeurl = fetchmeme().url
-            async with aiohttp.ClientSession() as session:
-                async with session.get(memeurl) as resp:
-                    if resp.status != 200:
-                        return await message.channel.send('Could not download file...')
-                    data = io.BytesIO(await resp.read())
-                    await message.channel.send(file=discord.File(data, 'meme.png'))
-            time.sleep(300)
-
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('$shut'):
-        global working
-        working = False
 
 
 def fetchmeme():
@@ -72,4 +34,38 @@ def fetchmeme():
             return submission
 
 
-client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYQz0A.lyomi3gHRyrlnJIneclXjfaLvfA')
+used = []
+working = False
+client = commands.Bot(command_prefix='$')
+
+
+@client.event
+async def on_ready():
+    print('Harlequin is booted up and providing memes...')
+
+
+@client.command(pass_context=True)
+async def boot(ctx):
+    global working
+    working = True
+    await ctx.send("Memes will send every 5 minutes...")
+    while working:
+        memeurl = fetchmeme().url
+        async with aiohttp.ClientSession() as session:
+            async with session.get(memeurl) as resp:
+                if resp.status != 200:
+                    await ctx.message.channel.send('Could not download file...')
+                data = io.BytesIO(await resp.read())
+                await ctx.send(file=discord.File(data, 'meme.png'))
+        time.sleep(300)
+
+
+@client.command(pass_context=True)
+async def shut(ctx):
+    global working
+    working = False
+    await ctx.send("Memes will no longer send...")
+    return
+
+while True:
+    client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYQz0A.lyomi3gHRyrlnJIneclXjfaLvfA')
