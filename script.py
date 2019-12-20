@@ -20,6 +20,7 @@ memeReddits = [
     'dank_meme'
 ]
 
+interval = 60
 
 def fetchmeme():
     global used
@@ -41,7 +42,7 @@ client = commands.Bot(command_prefix='$')
 
 @client.event
 async def on_ready():
-    print('Logged in as')
+    print('Providing memes as')
     print(client.user.name)
     print(client.user.id)
     print('------')
@@ -49,9 +50,9 @@ async def on_ready():
 
 @client.command(pass_context=True)
 async def boot(ctx):
-    global working
+    global working 
     working = True
-    await ctx.send("Memes will send every minute...")
+    await ctx.send("Memes will send every" + interval + " seconds...")
     while True:
         memeurl = fetchmeme().url
         async with aiohttp.ClientSession() as session:
@@ -63,6 +64,6 @@ async def boot(ctx):
                     await ctx.send(file=discord.File(data, 'meme.png'))
                 except discord.errors.HTTPException:
                     await ctx.send("File too large to send...")
-        time.sleep(60)
+        time.sleep(interval)
 
 client.run('NjI0NDE1Nzg5MTA1MjgzMDgy.XYVf8g.6k29MjCDVMKOonKFunCelucEGLU')
